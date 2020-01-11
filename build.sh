@@ -5,4 +5,4 @@ if test $(id -u) -gt 0; then
 fi;
 
 cp gitignore.sh /usr/bin/gitignore;
-chmod u+s,a+x /usr/bin/gitignore;
+chmod a+x /usr/bin/gitignore;
