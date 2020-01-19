@@ -1,73 +1,58 @@
 #!/bin/sh
-__DESCRIPTION="Utility to download different gitignore files from public repository on mirror github using raw.githubusercontent.com.";
-__USAGE="Usage:
-    gitignore [OPTIONS] <TYPE> <OUTPUT>
 
-$__DESCRIPTION  
+echoerr() {
+    # same as echo but uses cat to redirect text to stderr.
+    cat >&2 <<< "${*}"; 
+}
+
+usage() {
+    cat << __USAGE
+Usage: gitignore [OPTIONS] <LANGUAGE>
 
 Options:
-    --branch <BRANCH>                   Use specified branch in repository (default: master)
-    --mirror <HREF>                     Use specified mirror (default: raw.githubusercontent.com)
-    --repository <USER/REPOSITORY>      Specify repository address (default: github/gitignore)
-    --command <CMD>                     Use 'curl' either 'wget' to download data (default: wget)
-    -o, --output                        Print .gitignore to STDOUT.
-    -h ,--help                          Print help info.
+    -b, --branch <BRANCH>               Specify source branch ref (default: master)
+    -o, --output <FILE>                 Specify output file (default: .gitignore)
+    -h, --help                          Print help information.
+__USAGE
+}
 
-Type: type of the .gitignore (default: NOT SET)
+# Parse input arguments.
+parse_args() {
+    for arg in "$@"; do
+        case "${arg}" in
+            -b|--branch)
+                export REMOTE_BRANCH="${2}";
+                shift; shift;;
+            -o|--output)
+                export OUTPUT_FILE="${2}";
+                shift; shift;;
+            -h|--help)
+                usage;
+                exit;;
+        esac;
+    done;
 
-Output: file to output (default: .gitignore)";
-
-BRANCH="master";
-MIRROR="raw.githubusercontent.com";
-REPOSITORY="github/gitignore";
-COMMAND="wget";
-DO_STDOUT="/bin/false";
-
-# parse arguments
-for argument in "$@"; do
-    case "$argument" in
-        --branch)
-            shift;
-            BRANCH="$1";
-            shift;;
-        --mirror)
-            shift;
-            MIRROR="$1";
-            shift;;
-        --command)
-            shift; 
-            COMMAND="$1";
-            shift;;
-        --repository)
-            shift;
-            REPOSITORY="$1";
-            shift;;
-        -o|--output)
-            shift;
-            DO_STDOUT="/bin/true";;
-        -h|--help)
-            echo "$__USAGE";
-            exit;;
-    esac;
-done;
-
-if [ -z "$1" ]; then "$0" --help; exit; else TYPE="$1"; shift; fi;
-if [ -z "$*" ]; then OUTPUT=".gitignore"; else OUTPUT="$*"; fi;
-
-URL="https://$MIRROR/$REPOSITORY/$BRANCH/$TYPE.gitignore";
-
-if [ "$COMMAND" = "wget" ]; then
-    if $DO_STDOUT; then
-        wget -O - -q "$URL";
+    # expecting one argument left
+    if [ -n "${*}" ]; then
+        export GITIGNORE_TYPE="${*}";
     else
-        wget -O "$OUTPUT" -q "$URL";
+        echoerr "Gitignore file is not provided. I don't know what gitignore to download.";
+        exit;
     fi;
-elif [ "$COMMAND" = "curl" ]; then
-    if $DO_STDOUT; then
-        curl "$URL";
-    else
-        curl "$URL" -o "$OUTPUT";
+
+    if [ -z "${REMOTE_BRANCH}" ]; then
+        export REMOTE_BRANCH="master";
     fi;
-else
-    echo "Unknown command.";
-fi;
+
+    if [ -z "${OUTPUT_FILE}" ]; then
+        export OUTPUT_FILE=".gitignore";
+    fi;
+}
+
+execute() {
+    curl "https://raw.githubusercontent.com/github/gitignore/${REMOTE_BRANCH}/${GITIGNORE_TYPE}" -o "${OUTPUT_FILE}";
+}
+
+parse_args "${@}";
+
+execute;
