@@ -2,7 +2,7 @@
 
 echoerr() {
     # same as echo but uses cat to redirect text to stderr.
-    cat >&2 <<< "${*}"; 
+    cat >&2 <<< "${*}";
 }
 
 usage() {
@@ -50,7 +50,7 @@ parse_args() {
 }
 
 execute() {
-    curl "https://raw.githubusercontent.com/github/gitignore/${REMOTE_BRANCH}/${GITIGNORE_TYPE}" -o "${OUTPUT_FILE}";
+    curl "https://raw.githubusercontent.com/github/gitignore/${REMOTE_BRANCH}/${GITIGNORE_TYPE}.gitignore" -o "${OUTPUT_FILE}";
 }
 
 parse_args "${@}";
