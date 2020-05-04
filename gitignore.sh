@@ -23,10 +23,10 @@ parse_args() {
     for arg in "$@"; do
         case "${arg}" in
             -b|--branch)
-                export REMOTE_BRANCH="${2}";
+                REMOTE_BRANCH="${2}";
                 shift; shift;;
             -o|--output)
-                export OUTPUT_FILE="${2}";
+                OUTPUT_FILE="${2}";
                 shift; shift;;
             -h|--help)
                 usage;
@@ -36,18 +36,18 @@ parse_args() {
 
     # expecting one argument left
     if [ -n "${*}" ]; then
-        export GITIGNORE_TYPE="${*}";
+        GITIGNORE_TYPE="${*}";
     else
         echoerr "Name of gitignore file is not provided. I don't know what gitignore to download.";
         exit;
     fi;
 
     if [ -z "${REMOTE_BRANCH}" ]; then
-        export REMOTE_BRANCH="master";
+        REMOTE_BRANCH="master";
     fi;
 
     if [ -z "${OUTPUT_FILE}" ]; then
-        export OUTPUT_FILE=".gitignore";
+        OUTPUT_FILE=".gitignore";
     fi;
 }
 
