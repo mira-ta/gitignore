@@ -1,8 +1,8 @@
 #!/bin/sh
 
 echoerr() {
-    # same as echo but uses cat to redirect text to stderr.
-    cat >&2 <<< "${*}";
+    # same as echo but uses redirects text to stderr.
+    echo "${*}" >&2;
 }
 
 usage() {
@@ -10,6 +10,8 @@ usage() {
 Usage: gitignore [OPTIONS] <LANGUAGE>
 
 Options:
+    LANGUAGE                            Name of gitignore file in GitHub's repository
+
     -b, --branch <BRANCH>               Specify source branch ref (default: master)
     -o, --output <FILE>                 Specify output file (default: .gitignore)
     -h, --help                          Print help information.
@@ -36,7 +38,7 @@ parse_args() {
     if [ -n "${*}" ]; then
         export GITIGNORE_TYPE="${*}";
     else
-        echoerr "Gitignore file is not provided. I don't know what gitignore to download.";
+        echoerr "Name of gitignore file is not provided. I don't know what gitignore to download.";
         exit;
     fi;
 
